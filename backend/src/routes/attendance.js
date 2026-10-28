@@ -48,8 +48,16 @@ router.delete("/:id", async (req, res) => {
     return res.status(400).json({ error: "Attendance ID must be a positive integer." });
   }
 
-  const { error } = await req.supabase.from("attendance").delete().eq("id", id);
+  const { data, error } = await req.supabase
+    .from("attendance")
+    .delete()
+    .eq("id", id)
+    .select("id");
+
   if (error) return res.status(400).json({ error: error.message });
+  if (!data || data.length === 0) {
+    return res.status(403).json({ error: "You are not allowed to delete this record." });
+  }
   res.json({ message: "Attendance record deleted." });
 });
 
